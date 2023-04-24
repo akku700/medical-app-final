@@ -65,8 +65,7 @@ const likeproduct = AsyncHandler(async (req, res, next) => {
 });
 
 const mostlike = async (req, res, next) => {
-
-  const query = req.query.limit || 1;
+  const query = req.query.limit || 10;
   if (isNaN(query)) return next(new AppError("query must be a number"));
 
   const data = await Like.aggregate([
@@ -79,15 +78,19 @@ const mostlike = async (req, res, next) => {
     {
       $sort: { count: -1 },
     },
-    {
-      $limit: +query,
-    },
   ]).exec();
-
-  res.status(200).json({
-    status: "success",
-    data,
-  });
+  if (data.length > 1) {
+    res.status(200).json({
+      status: "success",
+      data,
+    });
+  } else {
+    res.status(200).json({
+      status: "success",
+      data,
+    });
+  }
+  console.log(data);
 };
 
 module.exports = { likeproduct, mostlike };
